@@ -1,0 +1,92 @@
+### General ###
+*.iml
+.gradle/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*.swn
+*.lock
+*.log
+
+### macOS ###
+.AppleDouble
+.LSOverride
+
+### Windows ###
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+### Gradle ###
+/build/
+/gradle/
+/.gradle/
+/buildSrc/.gradle/
+/buildSrc/build/
+gradlew
+gradlew.bat
+gradle-wrapper.jar
+gradle-wrapper.properties
+local.properties
+
+### Kotlin/Native ###
+*.konan
+*.klib
+*.framework
+*.xcframework
+/cinterop/
+/derivedData/
+
+### Kotlin/JetBrains IDE ###
+*.ipr
+*.iws
+out/
+
+### Android ###
+/.android/
+/captures/
+/outputs/
+/lint/
+/.cxx/
+/*.apk
+/*.aab
+
+### iOS ###
+iosApp/.gradle
+iosApp/.idea
+iosApp/build/
+iosApp/Pods/
+iosApp/Podfile.lock
+iosApp/*.xcworkspace/
+iosApp/*.xcodeproj/project.xcworkspace/
+iosApp/*.xcodeproj/xcuserdata/
+iosApp/*.xcodeproj/xcshareddata/
+iosApp/.swiftpm/
+iosApp/.build/
+
+### Jetpack Compose ###
+/.ui-test-snapshots/
+
+### Temporary & Generated Files ###
+*.class
+*.jar
+*.war
+*.ear
+*.dll
+*.exe
+*.pdb
+*.so
+*.dylib
+*.nupkg
+*.pyc
+*.pyo
+*.tmp
+*.temp
+*.bak
+*.orig
+
+### VS Code ###
+.vscode/
+.history/
