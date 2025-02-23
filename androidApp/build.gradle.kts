@@ -1,8 +1,22 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     alias(libs.plugins.compose.compiler)
 }
+
+val versionPropertiesInputStream = FileInputStream("$rootDir/versions.properties")
+val versionProperties = Properties().apply {
+    load(versionPropertiesInputStream)
+}
+val versionCodeProperty = versionProperties.getProperty("versionCode").toInt()
+val versionMajorProperty = versionProperties.getProperty("versionMajor").toInt()
+val versionMinorProperty = versionProperties.getProperty("versionMinor").toInt()
+val versionPatchProperty = versionProperties.getProperty("versionPatch").toInt()
+
+val versionNameProperty = "$versionMajorProperty.$versionMinorProperty.$versionPatchProperty"
 
 android {
     namespace = "com.panini.toebeans.android"
@@ -11,8 +25,8 @@ android {
         applicationId = "com.panini.toebeans.android"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = versionCodeProperty
+        versionName = versionNameProperty
     }
     buildFeatures {
         compose = true

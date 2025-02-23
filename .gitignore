@@ -90,3 +90,9 @@ iosApp/.build/
 ### VS Code ###
 .vscode/
 .history/
+
+### CI/CD ###
+androidApp/build/
+androidApp/release/
+shared/build/
+
