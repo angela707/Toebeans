@@ -20,8 +20,7 @@ $RECYCLE.BIN/
 
 ### Gradle ###
 /build/
-/.gradle/
-/buildSrc/.gradle/
+#/buildSrc/.gradle/
 /buildSrc/build/
 local.properties
 
