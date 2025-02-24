@@ -25,9 +25,6 @@ $RECYCLE.BIN/
 /.gradle/
 /buildSrc/.gradle/
 /buildSrc/build/
-gradlew.bat
-gradle-wrapper.jar
-gradle-wrapper.properties
 local.properties
 
 ### Kotlin/Native ###
