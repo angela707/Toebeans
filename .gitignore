@@ -1,6 +1,5 @@
 ### General ###
 *.iml
-.gradle/
 .idea/
 .DS_Store
 *.swp
@@ -21,7 +20,6 @@ $RECYCLE.BIN/
 
 ### Gradle ###
 /build/
-/gradle/
 /.gradle/
 /buildSrc/.gradle/
 /buildSrc/build/
