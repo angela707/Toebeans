@@ -1,23 +1,126 @@
-name: Android CI
+name: Build and Create Releases
 
 on:
   push:
     branches: [ development ]
+    tags:
+      - v*
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  build:
+  test-android:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-      - name: set up JDK 11
-        uses: actions/setup-java@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v1
         with:
-          java-version: '11'
-          distribution: 'temurin'
-          cache: gradle
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-      - name: Build with Gradle
-        run: ./gradlew build
+          java-version: 17
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Run Unit Tests
+        run: ./gradlew androidApp:testDebugUnitTest
+
+  build-android:
+    needs: test-android
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+      - name: Build Android AAB
+        run: ./gradlew androidApp:bundleRelease --stacktrace --info
+      - name: Build Android APK
+        run: ./gradlew androidApp:assembleRelease --stacktrace --info
+      - name: Verify APK & AAB files before renaming
+        run: ls -R androidApp/build/outputs/
+      - name: Rename APK for consistency
+        run: mv androidApp/build/outputs/apk/release/androidApp-release-unsigned.apk androidApp/build/outputs/apk/release/androidApp-release.apk
+      - name: Verify APK & AAB files after renaming
+        run: ls -R androidApp/build/outputs/
+      - name: Upload AAB as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-aab
+          path: androidApp/build/outputs/bundle/release/androidApp-release.aab
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: androidApp/build/outputs/apk/release/androidApp-release.apk
+      - name: Upload full outputs folder (for debugging)
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-full-output
+          path: androidApp/build/outputs/
+
+  create-release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build-android
+    permissions: write-all
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+  upload-assets:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: create-release
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download full outputs folder (for debugging)
+        uses: actions/download-artifact@v4
+        with:
+          name: android-full-output
+          path: .
+      - name: List downloaded files
+        run: ls -R .
+      - name: Download AAB artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-aab
+          path: .
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: .
+      - name: Verify downloaded artifacts
+        run: ls -R .
+      - name: Upload Release AAB Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: androidApp-release.aab
+          asset_name: toebeans-${{ github.ref_name }}.aab
+          asset_content_type: application/x-authorware-bin
+      - name: Upload Release APK Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: androidApp-release.apk
+          asset_name: toebeans-${{ github.ref_name }}.apk
+          asset_content_type: application/vnd.android.package-archive
